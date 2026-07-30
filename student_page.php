@@ -1,0 +1,320 @@
+<?php
+$conn = mysqli_connect("localhost","root","","notice");
+
+$sql = "SELECT * FROM notice_table";
+
+$result = mysqli_query($conn,$sql);
+
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Responsive Notice Board</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    body {
+      background: linear-gradient(to right, #f4f8fb, #e0e7ef);
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .header {
+      background: linear-gradient(90deg, #003973 0%, #e5e5be 100%);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .header img {
+      height: 50px;
+    }
+
+    .header h2 {
+      flex-grow: 1;
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 0;
+    }
+
+    .navbar {
+      position: relative;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar a,
+    
+
+    .navbar a:hover {
+      color: #ffc107;
+    }
+
+
+    /* Responsive rules */
+    .menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  z-index: 1101;
+}
+
+.navbar ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar ul {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    flex-direction: column;
+    background-color: #003973;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    z-index: 1100;
+  }
+
+  .navbar ul.active {
+    display: flex;
+  }
+
+  .navbar li {
+    margin: 1rem 0;
+  }
+
+  .navbar a {
+    font-size: 1.5rem;
+  }
+}
+    
+
+    .depart_filter {
+      background-color: #e9ecef;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .filter {
+      margin: 0.3rem;
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 20px;
+      background-color: #0d6efd;
+      color: white;
+      transition: 0.3s;
+    }
+
+    .filter:hover {
+      background-color: #0a58ca;
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    footer {
+      background-color: #003973;
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    footer .icons i {
+      margin: 0 10px;
+      font-size: 1.5rem;
+      color: white;
+      transition: color 0.3s;
+    }
+
+    footer .icons i:hover {
+      color: #ffc107;
+    }
+    .ctn {
+     padding: 5px 8px;
+     background:#ffc107;
+     border-radius: 10px;
+     color: whitesmoke;
+     border: none;
+     font-size: large;
+     height: max-content;
+     width: max-content;
+     cursor: pointer;
+     text-decoration: none;
+     margin: 5px;
+ }
+
+ .ctn:hover {
+     color: black;
+     box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.5);
+ }
+  </style>
+</head>
+<body>
+<div class="header">
+  <img src="./logo.png" alt="Logo">
+  <h2>SHARAD INSTITUTE OF TECHNOLOGY, COLLEGE OF ENGINEERING, YADRAV</h2>
+  <button class="menu-toggle" aria-label="Toggle navigation">
+    <i class="fas fa-bars"></i>
+  </button>
+  <nav class="navbar">
+    <ul>
+      <li><a href="./about.html">About</a></li>
+      <li><a href="./contact.html">Contact</a></li>
+      <li><button class="ctn" id="logout">Logout</button></li>
+    </ul>
+  </nav>
+</div>
+
+
+  <div class="depart_filter">
+    <button class="filter" data-name="all">All</button>
+    <button class="filter" data-name="CSE">CSE</button>
+    <button class="filter" data-name="AI">AI</button>
+    <button class="filter" data-name="ECE">ECE</button>
+    <button class="filter" data-name="CE">CE</button>
+    <button class="filter" data-name="ME">ME</button>
+    <button class="filter" data-name="AR">AR</button>
+    <button class="filter" data-name="EE">EE</button>
+    <button class="filter" data-name="MX">MX</button>
+  </div>
+  <div class="container my-4">
+  <div class="row justify-content-center g-4 gallery">
+    <?php
+    while ($row = mysqli_fetch_assoc($result)) {
+      $department = htmlspecialchars($row['department']);
+      $title = htmlspecialchars($row['title']);
+      $image = htmlspecialchars($row['image']);
+      $date = htmlspecialchars($row['created_at']);
+    ?>
+      <div class="col-md-6 col-lg-4 card-item" data-department="<?= $department ?>">
+        <div class="card h-100 shadow-sm">
+          <a href="uploads/<?= $image ?>" target="_blank">
+            <img src="uploads/<?= $image ?>" class="card-img-top" alt="<?= $title ?>" style="height: 250px; object-fit: cover;" />
+          </a>
+          <div class="card-body">
+          <h5 class="card-title"><?= $department ?></h5>
+            <p class="card-text"><?= $title ?></p>
+            <p class="card-text text-muted"><small><strong>Released on:</strong> <?= $date ?></small></p>
+          </div>
+        </div>
+      </div>
+    <?php } ?>
+  </div>
+</div>
+
+
+
+  <footer>
+    <p>This website is for project use. Some notices may be duplicates—please verify.</p>
+    <a href="./feedback.html" class="btn btn-light my-2">Send Feedback</a>
+    <div class="icons">
+      <i class="fab fa-instagram"></i>
+      <i class="fab fa-linkedin"></i>
+      <i class="fas fa-envelope"></i>
+      <i class="fab fa-twitter"></i>
+      <i class="fab fa-youtube"></i>
+    </div>
+    <p class="mt-3">All rights reserved © 2024 sitcoe.org.com</p>
+  </footer>
+
+  <script>
+    document.querySelector('.menu-toggle').addEventListener('click', () => {
+      document.querySelector('.navbar ul').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.navbar a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.navbar ul').classList.remove('active');
+      });
+    });
+
+    document.getElementById('logout').addEventListener('click', function (e) {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+
+  // Logout function
+  document.getElementById('logout').addEventListener('click', function (e) {
+    e.preventDefault(); // Prevent default <a> behavior
+    window.location.href = 'index.html'; // Redirect to login/home page
+  });
+
+
+
+ 
+
+//filtering
+  // Run once the page content is fully loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    const filterButtons = document.querySelectorAll(".filter");
+    const cards = document.querySelectorAll(".card-item");
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", function () {
+        // Get the department value to filter
+        const selectedDepartment = button.getAttribute("data-name").toLowerCase();
+
+        // Optional: Update active class for button styling
+        filterButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        // Loop through all cards and show/hide based on department
+        cards.forEach(card => {
+          const cardDept = card.getAttribute("data-department").toLowerCase();
+
+          if (selectedDepartment === "all" || selectedDepartment === cardDept) {
+            card.style.display = "block"; // Show the card
+          } else {
+            card.style.display = "none"; // Hide the card
+          }
+        });
+      });
+    });
+  });
+
+
+</script>
+</body>
+</html>
